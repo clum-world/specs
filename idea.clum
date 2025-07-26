@@ -1,0 +1,16 @@
+load-env
+  |> enable-cdn
+      cloudflare
+      fastly
+  |> env -> connect-database
+      url: env.database.url
+      pool-size: 10
+  |> db -> build-container
+    player: PlayerRepository::from(db)
+    logger: Logger::from(db)
+    score: ScoreRepository::from(db)
+  |> env -> auto-injection
+    server
+      port: env.server.port
+    cron
+  |> !
