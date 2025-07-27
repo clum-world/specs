@@ -14,3 +14,18 @@ load-env
       port: env.server.port
     cron
   |> !
+
+
+
+root (
+  killer:
+    cause: catch-abort-signal-by-os
+    trigger: Console
+)
+  |> root -> console (
+    killer:
+      catch-abort-signal-by-user = Console (get ctrl with Keys::D)
+  )
+  |> app
+    // 処理
+  |> !
