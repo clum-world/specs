@@ -29,3 +29,17 @@ root (
   |> app
     // 処理
   |> !
+
+
+# Diff<A, R> (prev: T, next: T) -> R
+
+# Mutator<T>(
+  will: Diff<T, Unit>
+  did: Diff<T, Unit>
+  should: Diff<T, Bool>
+)
+
+new<Mutator<u8>>(10)
+  |> (hit-point) ->
+    subscribe(hit-point) |> did (prev, next) -> render-to-ui(prev, next)!
+    attack(from: enemy, to: hit-point)!
