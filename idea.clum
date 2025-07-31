@@ -43,3 +43,51 @@ new<Mutator<u8>>(10)
   |> (hit-point) ->
     subscribe(hit-point) |> did (prev, next) -> render-to-ui(prev, next)!
     attack(from: enemy, to: hit-point)!
+
+# CreateUserInput
+  name: String
+  birthday: Date
+# CreateUser(input: Input) -> Unit
+create-user: CreateUser = (input) ->
+  load-env
+    |> connect-database
+    |> create-user-repository with (create-user)
+    |> fork(if)
+    |> down(is-adult(user.birthday)) ->
+        create-user(input)
+          |> a -> if
+            a is Yes: up(created(a.id)!)!
+            a is No: up(error-occurred(a.cause)!)!
+    |> down(otherwise) ->
+        fork(if)
+          |> down(is-owner(user)) ->
+            accept(user)
+              |> create-user(user)
+              |> a -> if
+                a is Yes: up(created(a.id)!)!
+                a is No: up(error-occurred(a.cause)!)!
+              |> up
+              |> !
+            |> down(otherwise)
+              |> up(error-occurred('young')!)!
+    |> union(r) ->
+      r is Created: -> todo!
+      r is ErrorOccurred: -> todo!
+      r is Created: -> todo!
+    |> !
+
+
+main = fork
+  a |> b |> await |> !
+sub = fork
+  c |> d |> await |> !
+
+winner = race main, sub
+
+main = fork
+  inner = fork
+    x = a |> b |> !
+    y = c |> d |> !
+    if n > 10: <- None
+    join x, y
+      |> merge |> !
